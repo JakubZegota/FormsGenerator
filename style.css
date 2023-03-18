@@ -28,7 +28,11 @@
     bottom: -30px;
     right: -5px;
 }
-
+.subquestion-delete-btn {
+    position: absolute;
+    bottom: -60px;
+    right: -5px;
+}
 .subquestions-container {
     width: 100%;
 }
