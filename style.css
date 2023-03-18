@@ -1,0 +1,76 @@
+
+.simple-form {
+
+    display: inline-block;
+    border: solid;
+    border-radius: 10px;
+    border-width: 5px;
+    padding: 2.5% 5%;
+    margin: 3% 2%;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.simple-subform {
+
+    display: inline-block;
+    border: solid;
+    border-radius: 20px;
+    border-width: 2px;
+    padding: 2.5% 5%;
+    margin: 3% 2%;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.subquestion-btn {
+    position: absolute;
+    bottom: -30px;
+    right: -5px;
+}
+
+.subquestions-container {
+    width: 100%;
+}
+
+.question-container {
+    margin: 30px;
+    top: 100px;
+}
+
+
+@media (min-width: 768px) {
+    .simple-form {
+        padding: 10px 15%;
+        margin: 25px 5%;
+    }
+
+    .simple-subform {
+        padding: 10px 15%;
+        margin: 0 0 0 15%;
+    }
+}
+
+@media (min-width: 992px) {
+    .simple-form {
+        padding: 10px 20%;
+        margin: 25px 10%;
+    }
+
+    .simple-subform {
+        padding: 10px 20%;
+        margin: 0 0 0 20%;
+    }
+}
+
+@media (min-width: 1200px) {
+    .simple-form {
+        padding: 10px 25%;
+        margin: 25px 12.5%;
+    }
+
+    .simple-subform {
+        padding: 10px 25%;
+        margin: 0 0 0 25%;
+    }
+}
