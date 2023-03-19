@@ -1,104 +1,140 @@
-//When "Add a question" is clicked"
+//ADD QUESTION BUTTON
 const generateFormButton = document.getElementById('generate-form-btn');
 generateFormButton.addEventListener('click', function () {
     event.preventDefault();
     const formContainer = document.getElementById('forms');
-    createQuestion(false, formContainer, null);
+    createQuestion(null, formContainer);
 });
 
+//GENERATE HTML BUTTON
+const generateHTMLbtn = document.getElementById('generate-html-btn');
+generateHTMLbtn.addEventListener('click', function () {
+    event.preventDefault();
+    generateHTML();
 
-//Creating question
-function createQuestion(isSubquestion, container, motherValue) {
+});
 
-    //a container for the question
+const questionsArray = [];
+
+function generateHTML() {
+    console.log(questionsArray);
+}
+
+function createQuestion(parentQuestion, container) {
+
+    let thisQuestion = new Question(parentQuestion, container);
+
+    //QUESTION CONTAINER
     const questionContainer = document.createElement('div');
     questionContainer.classList.add('question-container');
-    container.appendChild(questionContainer);
+    thisQuestion.container.appendChild(questionContainer);
 
-    //creating form element
+    //FORM ELEMENT
     const formElement = document.createElement('form');
+    formElement.classList.add(thisQuestion.classCSS);
 
-    //ensuring every form has ID value --- NOT COMPLETED ---
-    const formId = `form-${Date.now()}`;
-    formElement.setAttribute('id', formId);
-
-    if (isSubquestion) {
-        formElement.classList.add('simple-subform');
-
-        //blocking the previous question and its type so it cannot be modified
-        blockOrUnblock(container, true);
-
-        //What conditions to add based on the previously chosen input
-        switch (motherValue) {
+    //CONDITION PART
+    if (thisQuestion.isSubquestion) {
+        switch (thisQuestion.parentQuestion.typeValue) {
             case 'text':
                 generateTypeInput('Condition', formElement, ["equals"]);
-                generateTextInput('', formElement);
+                generateTextInput('HIDDEN', formElement);
                 break;
             case 'yes/no':
                 generateTypeInput("Condition", formElement, ["equals"]);
-                generateTypeInput("", formElement, ["yes", "no"]);
+                generateTypeInput('HIDDEN', formElement, ["yes", "no"]);
                 break;
             case 'number':
                 generateTypeInput("Condition", formElement, ["equals", "greater than", "less than"]);
-                generateTextInput('', formElement);
+                generateTextInput('HIDDEN', formElement);
                 break;
             default:
                 console.log("error with inheritance");
                 break;
         }
-    } else {
-        formElement.classList.add('simple-form');
     }
 
-    //generate input for questions
+    //QUESTION INPUT
     generateTextInput('Question', formElement);
 
-    //generate input with arguments as options to select
+    //TYPE INPUT
     generateTypeInput("Type", formElement, ['text', 'number', 'yes/no']);
 
-    //adding elements to containers
-    questionContainer.appendChild(document.createElement('br')); //container
-    questionContainer.appendChild(formElement); //container
+    //ADDING ELEMENTS TO CONTAINER
+    questionContainer.appendChild(document.createElement('br'));
+    questionContainer.appendChild(formElement);
 
-    //creating a container for subquestions
+    //SUBQUESTIONS CONTAINER
     const subquestionsContainer = document.createElement('div');
     subquestionsContainer.classList.add("subquestions-container");
     questionContainer.appendChild(subquestionsContainer);
 
-    //button for adding subquestions
-    const addSubquestion = document.createElement('button');
-    addSubquestion.textContent = "Add subquestion";
-    addSubquestion.addEventListener('click', function () {
+    //BUTTON CONTAINER
+    const buttonsContainer = document.createElement('div');
+    buttonsContainer.classList.add('button-container');
+    formElement.appendChild(buttonsContainer);
+
+
+    //DELETE QUESTION BUTTON
+    generateButton('subquestion-delete-btn', "Delete subquestion", buttonsContainer, function () {
         event.preventDefault();
-        const typeValue = formElement.querySelector('select[name="Type"]').value;
-        createQuestion(true, subquestionsContainer, typeValue); // CHANGE THIS NULL!!!
-
-    });
-    addSubquestion.classList.add('subquestion-btn');
-    formElement.appendChild(addSubquestion);
-
-
-    //button for deleting subquestions
-    const deleteSubquestion = document.createElement('button');
-    deleteSubquestion.textContent = "Delete subquestion";
-    deleteSubquestion.addEventListener('click', function () {
-        event.preventDefault();
-        const subquestionContainer = deleteSubquestion.closest('.question-container');
+        const subquestionContainer = formElement.closest('.question-container');
         subquestionContainer.remove();
-        blockOrUnblock(container, false);
     });
-    deleteSubquestion.classList.add('subquestion-delete-btn');
-    formElement.appendChild(deleteSubquestion);
 
+    //SAVE QUESTION BUTTON
+    generateButton('subquestion-save-btn', "Save this question", buttonsContainer, function () {
+        event.preventDefault();
+        const subquestionContainer = formElement.closest('.question-container');
+        blockOrUnblock(subquestionContainer, true);
+
+        thisQuestion.typeValue = formElement.querySelector('select[name="Type"]').value;
+        thisQuestion.questionInput = formElement.querySelector('input[name="Question"]').value;
+
+        if (thisQuestion.isSubquestion) {
+            thisQuestion.conditionValue = formElement.querySelector('select[name="Condition"]').value;
+            thisQuestion.conditionHiddenValue = formElement.querySelector('[name="HIDDEN"]').value;
+        }
+
+
+        let questionJSON = {
+            parentQuestionInput: thisQuestion.parentQuestionInput,
+            questionInput: thisQuestion.questionInput,
+            typeValue: thisQuestion.typeValue,
+            conditionValue: thisQuestion.conditionValue,
+            conditionHiddenValue: thisQuestion.conditionHiddenValue
+        };
+
+        questionsArray.push(questionJSON);
+
+
+        // the button for adding subquestion is appearing only when the question is saved,
+        // in order to prevent changing the question and messing up with the structure 
+
+        generateButton('subquestion-btn', 'Add subquestion', buttonsContainer, function () {
+            event.preventDefault();
+            createQuestion(thisQuestion, subquestionsContainer);
+        });
+
+        this.remove();
+    });
 
 }
 
+function generateButton(classCSS, textContent, container, behaviour) {
+    const generatedButton = document.createElement('button');
+    generatedButton.textContent = textContent;
+    generatedButton.addEventListener('click', behaviour);
+    generatedButton.classList.add(classCSS);
+    container.appendChild(generatedButton);
+}
 
-//Function that creates 'select' type input
 function generateTypeInput(h1name, container, argsArray) {
-    const typeTag = document.createElement('h4');
-    typeTag.textContent = h1name;
-    container.appendChild(typeTag);
+    if (h1name !== 'HIDDEN') {
+        const typeTag = document.createElement('h4');
+        typeTag.textContent = h1name;
+        container.appendChild(typeTag);
+    }
     const selectElement = document.createElement('select');
     selectElement.setAttribute('name', h1name);
     argsArray.forEach(element => {
@@ -111,36 +147,18 @@ function generateTypeInput(h1name, container, argsArray) {
     container.appendChild(selectElement);
 }
 
-//Function that creates 'text' type input
 function generateTextInput(h1name, container) {
-    const questionTag = document.createElement('h4');
-    questionTag.textContent = h1name;
-    container.appendChild(questionTag);
+    if (h1name !== 'HIDDEN') {
+        const questionTag = document.createElement('h4');
+        questionTag.textContent = h1name;
+        container.appendChild(questionTag);
+    }
     const questionInput = document.createElement('input');
     questionInput.setAttribute('type', 'text');
     questionInput.setAttribute('name', h1name);
     container.appendChild(questionInput);
     container.appendChild(document.createElement('br'));
 }
-
-
-//dATA to JSON  -- not completed !!! --
-const submitFormsBtn = document.getElementById('submit-forms-btn');
-submitFormsBtn.addEventListener('click', function () {
-    event.preventDefault();
-    const forms = document.querySelectorAll('.simple-form, .simple-subform');
-    const data = [];
-    forms.forEach(form => {
-        const formData = new FormData(form);
-        const obj = {};
-        formData.forEach((value, key) => {
-            obj[key] = value;
-        });
-        data.push(obj);
-    });
-    console.log(JSON.stringify(data));
-});
-
 
 function blockOrUnblock(container, isBlocking) {
     const motherQuestion = container.closest('.question-container');
@@ -157,3 +175,22 @@ function blockOrUnblock(container, isBlocking) {
         motherQuestionInput.removeAttribute('disabled');
     }
 }
+
+function Question(parentQuestion, container) {
+
+    this.parentQuestion = parentQuestion;
+    this.container = container;
+
+
+    if (parentQuestion === null) {
+        this.isSubquestion = false;
+        this.classCSS = 'simple-form';
+        this.parentQuestionInput = null;
+    } else {
+        this.isSubquestion = true;
+        this.classCSS = 'simple-subform';
+        this.parentQuestionInput = this.parentQuestion.questionInput;
+    }
+
+}
+
