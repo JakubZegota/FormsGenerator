@@ -1,3 +1,20 @@
+
+//RELOAD SAVED FORM BUTTON
+const loadButton = document.getElementById('load-btn');
+loadButton.addEventListener('click', function (){
+    event.preventDefault();
+    document.getElementById('forms').innerHTML = localStorage.getItem("formContainer");
+});
+
+//RESET FORM BUTTON
+const resetButton = document.getElementById('reset-btn');
+resetButton.addEventListener('click', function () {
+    event.preventDefault();
+    localStorage.removeItem("formContainer");
+    location.reload();
+});
+
+
 //ADD QUESTION BUTTON
 const generateFormButton = document.getElementById('generate-form-btn');
 generateFormButton.addEventListener('click', function () {
@@ -6,19 +23,15 @@ generateFormButton.addEventListener('click', function () {
     createQuestion(null, formContainer);
 });
 
-//GENERATE HTML BUTTON
-const generateHTMLbtn = document.getElementById('generate-html-btn');
-generateHTMLbtn.addEventListener('click', function () {
+//SAVE FORM BUTTON
+const saveFormButton = document.getElementById('save-form-btn');
+saveFormButton.addEventListener('click', function () {
     event.preventDefault();
-    generateHTML();
+    const formContainer = document.getElementById('forms').innerHTML;
+    localStorage.setItem("formContainer", formContainer);
 
 });
 
-const questionsArray = [];
-
-function generateHTML() {
-    console.log(questionsArray);
-}
 
 function createQuestion(parentQuestion, container) {
 
@@ -80,6 +93,10 @@ function createQuestion(parentQuestion, container) {
         event.preventDefault();
         const subquestionContainer = formElement.closest('.question-container');
         subquestionContainer.remove();
+
+        const formContainer = document.getElementById('forms').innerHTML;
+        localStorage.setItem("formContainer", formContainer);
+
     });
 
     //SAVE QUESTION BUTTON
@@ -88,25 +105,25 @@ function createQuestion(parentQuestion, container) {
         const subquestionContainer = formElement.closest('.question-container');
         blockOrUnblock(subquestionContainer, true);
 
+
         thisQuestion.typeValue = formElement.querySelector('select[name="Type"]').value;
         thisQuestion.questionInput = formElement.querySelector('input[name="Question"]').value;
+
+        formElement.querySelector('select[name=Type]').querySelector('option:checked').setAttribute('selected', 'selected');
+        formElement.querySelector('input[name="Question"]').setAttribute("value", thisQuestion.questionInput);
+
 
         if (thisQuestion.isSubquestion) {
             thisQuestion.conditionValue = formElement.querySelector('select[name="Condition"]').value;
             thisQuestion.conditionHiddenValue = formElement.querySelector('[name="HIDDEN"]').value;
+
+            if(thisQuestion.parentQuestion.typeValue === 'yes/no'){
+            formElement.querySelector('[name="HIDDEN"]').querySelector('option:checked').setAttribute('selected','selected');
+            }
+
+            formElement.querySelector('select[name="Condition"]').querySelector('option:checked').setAttribute('selected', 'selected');
+            formElement.querySelector('[name="HIDDEN"]').setAttribute("value", thisQuestion.conditionHiddenValue);
         }
-
-
-        let questionJSON = {
-            parentQuestionInput: thisQuestion.parentQuestionInput,
-            questionInput: thisQuestion.questionInput,
-            typeValue: thisQuestion.typeValue,
-            conditionValue: thisQuestion.conditionValue,
-            conditionHiddenValue: thisQuestion.conditionHiddenValue
-        };
-
-        questionsArray.push(questionJSON);
-
 
         // the button for adding subquestion is appearing only when the question is saved,
         // in order to prevent changing the question and messing up with the structure 
