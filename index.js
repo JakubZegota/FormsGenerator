@@ -1,10 +1,13 @@
 
-//RELOAD SAVED FORM BUTTON
-const loadButton = document.getElementById('load-btn');
-loadButton.addEventListener('click', function (){
-    event.preventDefault();
+if (localStorage.getItem("formContainer") !== null) {
     document.getElementById('forms').innerHTML = localStorage.getItem("formContainer");
-});
+
+    const buttons = document.querySelectorAll('.subquestion-delete-btn');
+    buttons.forEach(button => {
+        button.setAttribute('onclick', 'testFunction()');
+      });
+}
+
 
 //RESET FORM BUTTON
 const resetButton = document.getElementById('reset-btn');
@@ -23,17 +26,9 @@ generateFormButton.addEventListener('click', function () {
     createQuestion(null, formContainer);
 });
 
-//SAVE FORM BUTTON
-const saveFormButton = document.getElementById('save-form-btn');
-saveFormButton.addEventListener('click', function () {
-    event.preventDefault();
-    const formContainer = document.getElementById('forms').innerHTML;
-    localStorage.setItem("formContainer", formContainer);
-
-});
-
 
 function createQuestion(parentQuestion, container) {
+
 
     let thisQuestion = new Question(parentQuestion, container);
 
@@ -89,15 +84,7 @@ function createQuestion(parentQuestion, container) {
 
 
     //DELETE QUESTION BUTTON
-    generateButton('subquestion-delete-btn', "Delete subquestion", buttonsContainer, function () {
-        event.preventDefault();
-        const subquestionContainer = formElement.closest('.question-container');
-        subquestionContainer.remove();
-
-        const formContainer = document.getElementById('forms').innerHTML;
-        localStorage.setItem("formContainer", formContainer);
-
-    });
+    generateButton('subquestion-delete-btn', "Delete subquestion", buttonsContainer, () => deleteQuestion(formElement));
 
     //SAVE QUESTION BUTTON
     generateButton('subquestion-save-btn', "Save this question", buttonsContainer, function () {
@@ -113,6 +100,7 @@ function createQuestion(parentQuestion, container) {
         formElement.querySelector('input[name="Question"]').setAttribute("value", thisQuestion.questionInput);
 
 
+
         if (thisQuestion.isSubquestion) {
             thisQuestion.conditionValue = formElement.querySelector('select[name="Condition"]').value;
             thisQuestion.conditionHiddenValue = formElement.querySelector('[name="HIDDEN"]').value;
@@ -125,13 +113,13 @@ function createQuestion(parentQuestion, container) {
             formElement.querySelector('[name="HIDDEN"]').setAttribute("value", thisQuestion.conditionHiddenValue);
         }
 
+        const formContainer = document.getElementById('forms').innerHTML;
+        localStorage.setItem("formContainer", formContainer);
+
         // the button for adding subquestion is appearing only when the question is saved,
         // in order to prevent changing the question and messing up with the structure 
 
-        generateButton('subquestion-btn', 'Add subquestion', buttonsContainer, function () {
-            event.preventDefault();
-            createQuestion(thisQuestion, subquestionsContainer);
-        });
+        generateButton('subquestion-btn', 'Add subquestion', buttonsContainer, () => addSubquestion(thisQuestion, subquestionsContainer));
 
         this.remove();
     });
@@ -211,3 +199,25 @@ function Question(parentQuestion, container) {
 
 }
 
+function deleteQuestion(formElement) {
+    event.preventDefault();
+    const subquestionContainer = formElement.closest('.question-container');
+    subquestionContainer.remove();
+    localStorage.removeItem("formContainer");
+    const formContainer = document.getElementById('forms').innerHTML;
+    localStorage.setItem("formContainer", formContainer);
+
+}
+
+function addSubquestion(parentQuestion, subquestionsContainer) {
+    event.preventDefault();
+    createQuestion(parentQuestion, subquestionsContainer);
+    const formContainer = document.getElementById('forms').innerHTML;
+    localStorage.setItem("formContainer", formContainer);
+}
+
+
+function testFunction(){
+    event.preventDefault();
+    console.log("działa");
+}  ///TESTTT
