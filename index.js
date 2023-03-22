@@ -25,7 +25,6 @@ resetButton.addEventListener('click', function () {
     location.reload();
 });
 
-
 //ADD QUESTION button
 const generateFormButton = document.getElementById('generate-form-btn');
 generateFormButton.addEventListener('click', function () {
@@ -33,7 +32,6 @@ generateFormButton.addEventListener('click', function () {
     const formContainer = document.getElementById('forms');
     createQuestion(null, formContainer);
 });
-
 
 //CREATE QUESTION function
 function createQuestion(parentQuestion, container) {
@@ -52,31 +50,33 @@ function createQuestion(parentQuestion, container) {
     //CONDITION PART
     if (thisQuestion.isSubquestion) {
         switch (thisQuestion.parentQuestion.typeValue) {
+
             case 'text':
                 generateTypeInput('Condition', formElement, ["equals"]);
                 generateTextInput('HIDDEN', formElement);
                 break;
+
             case 'yes/no':
                 generateTypeInput("Condition", formElement, ["equals"]);
                 generateTypeInput('HIDDEN', formElement, ["yes", "no"]);
                 break;
+
             case 'number':
                 generateTypeInput("Condition", formElement, ["equals", "greater than", "less than"]);
                 generateTextInput('HIDDEN', formElement);
                 break;
+
             default:
                 console.log("error with inheritance");
                 break;
         }
     }
 
-    //QUESTION INPUT
+    //GENERATING INPUTS
     generateTextInput('Question', formElement);
-
-    //TYPE INPUT
     generateTypeInput("Type", formElement, ['text', 'number', 'yes/no']);
 
-    //ADDING ELEMENTS TO CONTAINER
+    //ADDING FORM ELEMENT TO QUESTION CONTAINER
     questionContainer.appendChild(document.createElement('br'));
     questionContainer.appendChild(formElement);
 
@@ -91,23 +91,17 @@ function createQuestion(parentQuestion, container) {
     formElement.appendChild(buttonsContainer);
 
 
-    //DELETE QUESTION button
+    //GENERATING BUTTONS
     generateButton('subquestion-delete-btn', "Delete subquestion", buttonsContainer, () => deleteQuestion(formElement));
-
-    //SAVE QUESTION button
-    generateButton('subquestion-save-btn', "Save this question", buttonsContainer, function () {
+    generateButton('subquestion-save-btn', "Save subquestion", buttonsContainer, function () {
         event.preventDefault();
         const subquestionContainer = formElement.closest('.question-container');
-        blockOrUnblock(subquestionContainer, true);
-
+        blockQuestion(subquestionContainer);
 
         thisQuestion.typeValue = formElement.querySelector('select[name="Type"]').value;
         thisQuestion.questionInput = formElement.querySelector('input[name="Question"]').value;
-
         formElement.querySelector('select[name=Type]').querySelector('option:checked').setAttribute('selected', 'selected');
         formElement.querySelector('input[name="Question"]').setAttribute("value", thisQuestion.questionInput);
-
-
 
         if (thisQuestion.isSubquestion) {
             thisQuestion.conditionValue = formElement.querySelector('select[name="Condition"]').value;
@@ -120,7 +114,6 @@ function createQuestion(parentQuestion, container) {
             formElement.querySelector('select[name="Condition"]').querySelector('option:checked').setAttribute('selected', 'selected');
             formElement.querySelector('[name="HIDDEN"]').setAttribute("value", thisQuestion.conditionHiddenValue);
         }
-
 
         let questionJSON = {
             parentQuestionInput: thisQuestion.parentQuestionInput,
@@ -144,7 +137,6 @@ function createQuestion(parentQuestion, container) {
     });
 
 }
-
 
 function Question(parentQuestion, container) {
 
@@ -207,21 +199,13 @@ function generateTextInput(h1name, container) {
     container.appendChild(document.createElement('br'));
 }
 
-//isBlocking - is it really needed? 
-function blockOrUnblock(container, isBlocking) {
+function blockQuestion(container) {
     const motherQuestion = container.closest('.question-container');
     const motherForm = motherQuestion.querySelector('form');
-    if (isBlocking) {
-        const motherTypeSelect = motherForm.querySelector('select[name="Type"]');
-        motherTypeSelect.setAttribute('disabled', 'disabled');
-        const motherQuestionInput = motherForm.querySelector('input[name="Question"]');
-        motherQuestionInput.setAttribute('disabled', 'disabled');
-    } else {
-        const motherTypeSelect = motherForm.querySelector('select[name="Type"]');
-        motherTypeSelect.removeAttribute('disabled');
-        const motherQuestionInput = motherForm.querySelector('input[name="Question"]');
-        motherQuestionInput.removeAttribute('disabled');
-    }
+    const motherTypeSelect = motherForm.querySelector('select[name="Type"]');
+    motherTypeSelect.setAttribute('disabled', 'disabled');
+    const motherQuestionInput = motherForm.querySelector('input[name="Question"]');
+    motherQuestionInput.setAttribute('disabled', 'disabled');
 }
 
 function deleteQuestion(formElement) {
@@ -240,14 +224,12 @@ function addSubquestion(parentQuestion, subquestionsContainer) {
     localStorage.setItem("formContainer", formContainer);
 }
 
-
 function addEventListenersToQuestion(questionContainer) {
-    //const subquestionsContainer = questionContainer.querySelector('.subquestions-container');
     const addSubquestionButton = questionContainer.querySelector('.subquestion-btn');
     const deleteQuestionButton = questionContainer.querySelector('.subquestion-delete-btn');
-    // const saveQuestionButton = questionContainer.querySelector('.subquestion-save-btn');
+    const saveQuestionButton = questionContainer.querySelector('.subquestion-save-btn');
 
-    // ADD EVENT LISTENERS TO SUBQUESTION BUTTONS
+      //EVENT LISTENER TO ADD SUBQUESTION BUTTON
     if (addSubquestionButton) {
         addSubquestionButton.addEventListener('click', function () {
             event.preventDefault();
@@ -255,37 +237,30 @@ function addEventListenersToQuestion(questionContainer) {
             const questionObjectFromContainer = questionsData.find(obj => obj.questionInput === questionInputFromContainer);
             const parentQuestionObject = questionsData.find(obj => obj.questionInput === questionObjectFromContainer.parentQuestionInput);
 
-
-            //something is wrong
-
-
             if (parentQuestionObject === undefined) {
                 const newQuestionObj = new Question(null, questionContainer);
                 newQuestionObj.typeValue = questionObjectFromContainer.typeValue;
                 createQuestion(newQuestionObj, questionContainer);
             } else {
                 createQuestion(questionObjectFromContainer, questionContainer);
-                //createQuestion(parentQuestionObject, questionContainer);
             }
         });
     }
-    // ADD EVENT LISTENER TO DELETE QUESTION BUTTON
+    //EVENT LISTENER TO DELETE QUESTION BUTTON
     if (deleteQuestionButton) {
         deleteQuestionButton.addEventListener('click', function () {
             event.preventDefault();
             deleteQuestion(questionContainer);
         });
     }
-    // ADD EVENT LISTENER TO SAVE QUESTION BUTTON
-    // if (saveQuestionButton) {
-    //     saveQuestionButton.addEventListener('click', function () {
-    //         event.preventDefault();
-    //         // const subquestionContainer = formElement.closest('.question-container');
-    //         const subquestionContainer = questionContainer.closest('.question-container');
-    //         blockOrUnblock(subquestionContainer, true);
-    //         // CODE TO SAVE THE QUESTION
-    //         const formContainer = document.getElementById('forms').innerHTML;
-    //         localStorage.setItem("formContainer", formContainer);
-    //     });
-    // }
+    //EVENT LISTENER TO SAVE QUESTION BUTTON
+    if (saveQuestionButton) {
+        saveQuestionButton.addEventListener('click', function () {
+            event.preventDefault();
+            const subquestionContainer = questionContainer.closest('.question-container');
+            blockQuestion(subquestionContainer, true);
+            const formContainer = document.getElementById('forms').innerHTML;
+            localStorage.setItem("formContainer", formContainer);
+        });
+    }
 }

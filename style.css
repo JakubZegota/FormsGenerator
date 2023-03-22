@@ -1,70 +1,105 @@
 .simple-form {
-
     display: inline-block;
     border: solid;
     border-radius: 10px;
-    border-width: 5px;
-    padding: 2.5% 5%;
-    margin: 3% 2%;
-    box-sizing: border-box;
+    border-width: 2px;
+    background-color: rgba(255, 255, 255, 1);
     position: relative;
+    padding: 70px 25%;
+    margin: 25px 12.5%;
 }
 
 .simple-subform {
-
     display: inline-block;
     border: solid;
-    border-radius: 20px;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 1);
     border-width: 2px;
-    padding: 2.5% 5%;
-    margin: 3% 2%;
-    box-sizing: border-box;
+    padding: 20px 20%;
+    margin: 0 0 0 340px;
     position: relative;
 }
 
 .button-container {
-    position:absolute;
+    position: absolute;
     bottom: -30px;
     right: -5px;
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    gap: 10px; 
-  }
+    gap: 10px;
+}
 
-  
-.subquestion-btn {
-    background-color: darkblue;
-    color: white;
+header {
+    border: solid 4px;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 1);
+    text-align: center;
+    margin-bottom: 20px;
+    padding: 20px;
+    color: rgb(0, 78, 20);
+    font-size: 29px;
+    font-weight: bold;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: rgb(191, 226, 168);
+    color: rgb(0, 78, 20);
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+
+}
+
+.title {
+    margin-bottom: 20px;
+}
+
+.add-question-btn {
+    font-size: 20px;
+}
+
+.add-question-btn:hover {
+    background-color: rgb(0, 255, 0);
+}
+
+.reset-btn {
+    font-size: 20px;
+}
+
+.reset-btn:hover {
+    background-color: rgb(255, 0, 0)
+}
+
+input {
+    background-color: rgba(191, 226, 168, 0.2);
+}
+
+button,
+select {
+    border-color: rgb(0, 78, 20);
+    background-color: rgb(191, 226, 168);
+    border-radius: 20px;
+    margin-right: 4px;
+    transition: background-color 0.5s;
     cursor: pointer;
-    transition: opacity 0.5s;
+    padding-bottom: 3px;
+}
+
+button:hover {
+    opacity: 40%;
 }
 
 .subquestion-btn:hover {
-    opacity: 40%;
-}
-
-.subquestion-save-btn {
-    background-color: darkgreen;
-    color: white;
-    cursor: pointer;
-    transition: opacity 0.5s;
+    background-color: rgba(0, 0, 255, 0.5);
 }
 
 .subquestion-save-btn:hover {
-    opacity: 40%;
-}
-
-.subquestion-delete-btn {
-    background-color: darkred;
-    color: white;
-    cursor: pointer;
-    transition: opacity 0.5s;
+    background-color: rgba(0, 255, 0, 0.5);
 }
 
 .subquestion-delete-btn:hover {
-    opacity: 40%;
+    background-color: rgba(255, 0, 0, 0.5)
 }
 
 .subquestions-container {
@@ -74,41 +109,4 @@
 .question-container {
     margin: 30px;
     top: 100px;
-}
-
-
-@media (min-width: 768px) {
-    .simple-form {
-        padding: 10px 15%;
-        margin: 25px 5%;
-    }
-
-    .simple-subform {
-        padding: 10px 15%;
-        margin: 0 0 0 15%;
-    }
-}
-
-@media (min-width: 992px) {
-    .simple-form {
-        padding: 10px 20%;
-        margin: 25px 10%;
-    }
-
-    .simple-subform {
-        padding: 10px 20%;
-        margin: 0 0 0 20%;
-    }
-}
-
-@media (min-width: 1200px) {
-    .simple-form {
-        padding: 10px 25%;
-        margin: 25px 12.5%;
-    }
-
-    .simple-subform {
-        padding: 10px 25%;
-        margin: 0 0 0 25%;
-    }
 }
