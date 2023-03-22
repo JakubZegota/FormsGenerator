@@ -1,24 +1,32 @@
+//An array for JSON data for question inputs
+let questionsData = [];
 
-if (localStorage.getItem("formContainer") !== null) {
-    document.getElementById('forms').innerHTML = localStorage.getItem("formContainer");
-
-    const buttons = document.querySelectorAll('.subquestion-delete-btn');
-    buttons.forEach(button => {
-        button.setAttribute('onclick', 'testFunction()');
-      });
+//Retrieving JSON data from local storage
+if (localStorage.getItem("questionsData") != null) {
+    questionsData = JSON.parse(localStorage.getItem("questionsData"));
 }
 
+//Retrieving HTML and even listeners from local storage
+if (localStorage.getItem("formContainer") !== null) {
+    const formContainer = document.getElementById('forms');
+    formContainer.innerHTML = localStorage.getItem("formContainer");
+    const questionContainers = formContainer.querySelectorAll('.question-container');
+    questionContainers.forEach(container => {
+        addEventListenersToQuestion(container);
+    });
+}
 
-//RESET FORM BUTTON
+//RESET button
 const resetButton = document.getElementById('reset-btn');
 resetButton.addEventListener('click', function () {
     event.preventDefault();
     localStorage.removeItem("formContainer");
+    localStorage.removeItem("questionsData");
     location.reload();
 });
 
 
-//ADD QUESTION BUTTON
+//ADD QUESTION button
 const generateFormButton = document.getElementById('generate-form-btn');
 generateFormButton.addEventListener('click', function () {
     event.preventDefault();
@@ -27,8 +35,8 @@ generateFormButton.addEventListener('click', function () {
 });
 
 
+//CREATE QUESTION function
 function createQuestion(parentQuestion, container) {
-
 
     let thisQuestion = new Question(parentQuestion, container);
 
@@ -77,16 +85,16 @@ function createQuestion(parentQuestion, container) {
     subquestionsContainer.classList.add("subquestions-container");
     questionContainer.appendChild(subquestionsContainer);
 
-    //BUTTON CONTAINER
+    //BUTTONS CONTAINER
     const buttonsContainer = document.createElement('div');
     buttonsContainer.classList.add('button-container');
     formElement.appendChild(buttonsContainer);
 
 
-    //DELETE QUESTION BUTTON
+    //DELETE QUESTION button
     generateButton('subquestion-delete-btn', "Delete subquestion", buttonsContainer, () => deleteQuestion(formElement));
 
-    //SAVE QUESTION BUTTON
+    //SAVE QUESTION button
     generateButton('subquestion-save-btn', "Save this question", buttonsContainer, function () {
         event.preventDefault();
         const subquestionContainer = formElement.closest('.question-container');
@@ -105,24 +113,58 @@ function createQuestion(parentQuestion, container) {
             thisQuestion.conditionValue = formElement.querySelector('select[name="Condition"]').value;
             thisQuestion.conditionHiddenValue = formElement.querySelector('[name="HIDDEN"]').value;
 
-            if(thisQuestion.parentQuestion.typeValue === 'yes/no'){
-            formElement.querySelector('[name="HIDDEN"]').querySelector('option:checked').setAttribute('selected','selected');
+            if (thisQuestion.parentQuestion.typeValue === 'yes/no') {
+                formElement.querySelector('[name="HIDDEN"]').querySelector('option:checked').setAttribute('selected', 'selected');
             }
 
             formElement.querySelector('select[name="Condition"]').querySelector('option:checked').setAttribute('selected', 'selected');
             formElement.querySelector('[name="HIDDEN"]').setAttribute("value", thisQuestion.conditionHiddenValue);
         }
 
-        const formContainer = document.getElementById('forms').innerHTML;
-        localStorage.setItem("formContainer", formContainer);
+
+        let questionJSON = {
+            parentQuestionInput: thisQuestion.parentQuestionInput,
+            questionInput: thisQuestion.questionInput,
+            typeValue: thisQuestion.typeValue,
+            conditionValue: thisQuestion.conditionValue,
+            conditionHiddenValue: thisQuestion.conditionHiddenValue
+        };
+
+        questionsData.push(questionJSON);
+        localStorage.setItem("questionsData", JSON.stringify(questionsData));
+
 
         // the button for adding subquestion is appearing only when the question is saved,
         // in order to prevent changing the question and messing up with the structure 
-
         generateButton('subquestion-btn', 'Add subquestion', buttonsContainer, () => addSubquestion(thisQuestion, subquestionsContainer));
-
         this.remove();
+
+        const formContainer = document.getElementById('forms').innerHTML;
+        localStorage.setItem("formContainer", formContainer);
     });
+
+}
+
+
+function Question(parentQuestion, container) {
+
+    if (parentQuestion === undefined) {
+        parentQuestion = null;
+    }
+
+    this.parentQuestion = parentQuestion;
+    this.container = container;
+
+
+    if (parentQuestion === null) {
+        this.isSubquestion = false;
+        this.classCSS = 'simple-form';
+        this.parentQuestionInput = null;
+    } else {
+        this.isSubquestion = true;
+        this.classCSS = 'simple-subform';
+        this.parentQuestionInput = this.parentQuestion.questionInput;
+    }
 
 }
 
@@ -165,6 +207,7 @@ function generateTextInput(h1name, container) {
     container.appendChild(document.createElement('br'));
 }
 
+//isBlocking - is it really needed? 
 function blockOrUnblock(container, isBlocking) {
     const motherQuestion = container.closest('.question-container');
     const motherForm = motherQuestion.querySelector('form');
@@ -181,24 +224,6 @@ function blockOrUnblock(container, isBlocking) {
     }
 }
 
-function Question(parentQuestion, container) {
-
-    this.parentQuestion = parentQuestion;
-    this.container = container;
-
-
-    if (parentQuestion === null) {
-        this.isSubquestion = false;
-        this.classCSS = 'simple-form';
-        this.parentQuestionInput = null;
-    } else {
-        this.isSubquestion = true;
-        this.classCSS = 'simple-subform';
-        this.parentQuestionInput = this.parentQuestion.questionInput;
-    }
-
-}
-
 function deleteQuestion(formElement) {
     event.preventDefault();
     const subquestionContainer = formElement.closest('.question-container');
@@ -206,7 +231,6 @@ function deleteQuestion(formElement) {
     localStorage.removeItem("formContainer");
     const formContainer = document.getElementById('forms').innerHTML;
     localStorage.setItem("formContainer", formContainer);
-
 }
 
 function addSubquestion(parentQuestion, subquestionsContainer) {
@@ -217,7 +241,51 @@ function addSubquestion(parentQuestion, subquestionsContainer) {
 }
 
 
-function testFunction(){
-    event.preventDefault();
-    console.log("działa");
-}  ///TESTTT
+function addEventListenersToQuestion(questionContainer) {
+    //const subquestionsContainer = questionContainer.querySelector('.subquestions-container');
+    const addSubquestionButton = questionContainer.querySelector('.subquestion-btn');
+    const deleteQuestionButton = questionContainer.querySelector('.subquestion-delete-btn');
+    // const saveQuestionButton = questionContainer.querySelector('.subquestion-save-btn');
+
+    // ADD EVENT LISTENERS TO SUBQUESTION BUTTONS
+    if (addSubquestionButton) {
+        addSubquestionButton.addEventListener('click', function () {
+            event.preventDefault();
+            const questionInputFromContainer = questionContainer.querySelector('input[name="Question"]').value;
+            const questionObjectFromContainer = questionsData.find(obj => obj.questionInput === questionInputFromContainer);
+            const parentQuestionObject = questionsData.find(obj => obj.questionInput === questionObjectFromContainer.parentQuestionInput);
+
+
+            //something is wrong
+
+
+            if (parentQuestionObject === undefined) {
+                const newQuestionObj = new Question(null, questionContainer);
+                newQuestionObj.typeValue = questionObjectFromContainer.typeValue;
+                createQuestion(newQuestionObj, questionContainer);
+            } else {
+                createQuestion(questionObjectFromContainer, questionContainer);
+                //createQuestion(parentQuestionObject, questionContainer);
+            }
+        });
+    }
+    // ADD EVENT LISTENER TO DELETE QUESTION BUTTON
+    if (deleteQuestionButton) {
+        deleteQuestionButton.addEventListener('click', function () {
+            event.preventDefault();
+            deleteQuestion(questionContainer);
+        });
+    }
+    // ADD EVENT LISTENER TO SAVE QUESTION BUTTON
+    // if (saveQuestionButton) {
+    //     saveQuestionButton.addEventListener('click', function () {
+    //         event.preventDefault();
+    //         // const subquestionContainer = formElement.closest('.question-container');
+    //         const subquestionContainer = questionContainer.closest('.question-container');
+    //         blockOrUnblock(subquestionContainer, true);
+    //         // CODE TO SAVE THE QUESTION
+    //         const formContainer = document.getElementById('forms').innerHTML;
+    //         localStorage.setItem("formContainer", formContainer);
+    //     });
+    // }
+}
